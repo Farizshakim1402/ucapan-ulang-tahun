@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ucapan Ulang Tahun 🎉</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body, html {
+      height: 100%;
+      font-family: 'Poppins', sans-serif;
+      color: white;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    /* Background video */
+    video {
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      min-width: 100%;
+      min-height: 100%;
+      object-fit: cover;
+      z-index: -2;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: -1;
+    }
+
+    .screen {
+      display: none;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      height: 100vh;
+      padding: 20px;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    .active {
+      display: flex;
+    }
+
+    button {
+      margin-top: 30px;
+      background: white;
+      color: #ff69b4;
+      border: none;
+      padding: 15px 30px;
+      font-size: 1.2em;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background: #ffe6f2;
+      transform: scale(1.05);
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 15px;
+    }
+
+    p {
+      font-size: 1.2em;
+      max-width: 600px;
+      line-height: 1.5em;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Tampilan ke-4 (kado) */
+    #screen4 h1 {
+      font-size: 3em;
+      color: #ffb6c1;
+      text-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+    }
+
+    #gift-box {
+      font-size: 4em;
+      animation: bounce 1s infinite alternate;
+    }
+
+    @keyframes bounce {
+      from { transform: translateY(0); }
+      to { transform: translateY(-15px); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background video -->
+  <video autoplay muted loop id="bg-video">
+    <source src="background.mp4" type="video/mp4">
+  </video>
+  <div class="overlay"></div>
+  <canvas id="confetti"></canvas>
+
+  <!-- Halaman 1 -->
+  <div class="screen active" id="screen1">
+    <h1>🎂 Ucapan Spesial 🎂</h1>
+    <p>Klik tombol di bawah untuk melihat kejutan ulang tahun 🎁</p>
+    <button onclick="tampilkanUcapan()">Klik untuk Lihat Ucapan</button>
+  </div>
+
+  <!-- Halaman 2 -->
+  <div class="screen" id="screen2">
+    <h1 id="nama"></h1>
+    <p id="ucapan"></p>
+    <button onclick="lanjut()">Lanjut ➜</button>
+  </div>
+
+  <!-- Halaman 3 -->
+  <div class="screen" id="screen3">
+    <h1>💖 Pesan Terakhir 💖</h1>
+    <p>Semoga setiap langkahmu selalu dipenuhi senyum dan keberkahan.  
+    Jangan lupa bahagia hari ini, karena hari ini milikmu! 🥰🎉</p>
+    <button onclick="keHalaman4()">➡ Selanjutnya</button>
+  </div>
+
+  <!-- Halaman 4 -->
+  <div class="screen" id="screen4">
+    <h1>💕 Aku Sayang Kamu 💕</h1>
+    <div id="gift-box">🎁</div>
+    <button onclick="bukaKado()">Silakan Buka Kadonya 🎀</button>
+  </div>
+
+  <!-- Lagu -->
+  <audio id="lagu" src="happybirthday.mp3" preload="auto"></audio>
+
+  <script>
+    const screens = [
+      document.getElementById('screen1'),
+      document.getElementById('screen2'),
+      document.getElementById('screen3'),
+      document.getElementById('screen4')
+    ];
+
+    const audio = document.getElementById('lagu');
+    const namaTampil = document.getElementById('nama');
+    const ucapanTampil = document.getElementById('ucapan');
+
+    function tampilkanUcapan() {
+      gantiHalaman(1);
+      const nama = "Rima Amelia";
+      namaTampil.innerText = `Selamat Ulang Tahun sayang, ${nama}! 🎉`;
+      ucapanTampil.innerText = "Semoga kamu selalu bahagia, makin rajin, dan sukses dalam setiap langkah! 💖";
+      audio.currentTime = 0;
+      audio.play();
+      startConfetti();
+    }
+
+    function lanjut() { gantiHalaman(2); }
+    function keHalaman4() { gantiHalaman(3); }
+    function bukaKado() {
+      alert("💝 Surprise! Hadiah spesial menunggu kamu! 💌");
+    }
+
+    function gantiHalaman(index) {
+      screens.forEach((s) => s.classList.remove('active'));
+      screens[index].classList.add('active');
+    }
+
+    // --- Confetti Animation ---
+    const canvas = document.getElementById('confetti');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let confettiPieces = [];
+
+    class Confetti {
+      constructor(x, y, color, size, speed) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        this.size = size;
+        this.speed = speed;
+        this.angle = Math.random() * 2 * Math.PI;
+      }
+      update() {
+        this.y += this.speed;
+        this.x += Math.sin(this.angle);
+        if (this.y > canvas.height) this.y = 0;
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.fillStyle = this.color;
+        ctx.fillRect(this.x, this.y, this.size, this.size);
+        ctx.closePath();
+      }
+    }
+
+    function startConfetti() {
+      confettiPieces = [];
+      const colors = ['#ff4b5c', '#ff9a9e', '#fad0c4', '#fff'];
+      for (let i = 0; i < 150; i++) {
+        confettiPieces.push(
+          new Confetti(
+            Math.random() * canvas.width,
+            Math.random() * canvas.height,
+            colors[Math.floor(Math.random() * colors.length)],
+            Math.random() * 8 + 3,
+            Math.random() * 3 + 1
+          )
+        );
+      }
+      animateConfetti();
+    }
+
+    function animateConfetti() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      confettiPieces.forEach((confetti) => {
+        confetti.update();
+        confetti.draw();
+      });
+      requestAnimationFrame(animateConfetti);
+    }
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
+</body>
+</html>
